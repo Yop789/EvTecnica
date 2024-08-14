@@ -16,6 +16,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -41,6 +43,16 @@ public class GlobalExceptionHandler {
         response.put("errors", errors);
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidFormatException(InvalidFormatException ex) {
+        Map<String, String> errors = new HashMap<>();
+        String fieldName = ex.getPath().get(0).getFieldName();
+        String errorMessage = "Invalid format for field '" + fieldName + "'. Expected format: dd/MM/yyyy";
+        errors.put(fieldName, errorMessage);
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @Target({ ElementType.FIELD })
